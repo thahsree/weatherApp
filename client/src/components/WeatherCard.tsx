@@ -12,7 +12,7 @@ function WeatherCard({ district, newDistrict }: addressProps) {
 
     const [weather, setWeather] = useState<string>('');
     const [feelsLike, setFeelsLike] = useState<string>('');
-    const [isDay, setIsDay] = useState<boolean>(false);
+    const [isDay, setIsDay] = useState<boolean>(true);
     const [windSpeed, setWindSpeed] = useState<number>(0);
     const [weatherDescriptions, setWeatherDescriptions] = useState<string[]>([]);
     const [humidity, setHumidity] = useState<number>(0);
@@ -80,7 +80,9 @@ function WeatherCard({ district, newDistrict }: addressProps) {
                                                     ? "/rain.svg"
                                                     : weatherDescriptions.some(desc => desc.toLowerCase().includes('lightning'))
                                                         ? "/lightning.svg"
-                                                        : "/sunny.svg"
+                                                        : !isDay ? "/nightclouds.svg":
+                                                            "/sunny.svg"
+                                                            
                                 }
                                 alt="weather"
                                 className="w-full"
