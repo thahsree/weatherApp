@@ -4,16 +4,34 @@ const mysql = require('mysql');
 const morgan = require('morgan');
 const colors = require('colors');
 const dotenv = require('dotenv');
-const cors = require('cors')
+const cors = require('cors');
+const session = require('express-session');
+const cookieParser = require('cookie-parser')
 
 //configuring dotenv
 dotenv.config();
 
 //middlewares
-app.use(cors());
+
+app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(express.urlencoded({extended:false}));
 app.use(express.json())
+
+app.use(cors({
+    origin: 'http://localhost:5173', // Specify the frontend URL
+    credentials: true,              // Allow credentials (cookies, headers)
+}));
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { 
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 // 1 day expiry for testing
+    }
+}));
 
 const db = mysql.createConnection({
     host:process.env.DATABASE_HOST,
@@ -37,7 +55,7 @@ app.get("/",(req,res)=>{
 })
 
 app.use('/auth',require('./routes/authRoute'))
-
+app.use('/users',require('./routes/users'));
 app.listen(process.env.PORT,()=>{
     console.log(`SERVER RUNNING ON PORT ${process.env.PORT}`.bgMagenta.bgRed);
 })

@@ -1,5 +1,7 @@
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 const db = mysql.createConnection({
     host:process.env.DATABASE_HOST,
@@ -82,6 +84,17 @@ const Login = async(req,res)=>{
                 return res.status(401).json({"message":"incorrect password"});
             }
 
+            const accessToken = jwt.sign({
+                "UserInfo":{
+                    id:user.id,
+                    username:user.name,
+                }
+            },
+            process.env.ACCESS_TOKEN_SECRET
+            )
+
+            req.session.user = accessToken;
+
             return res.status(201).json({
                 "message":"Login successfull",
                 "user":{
@@ -99,5 +112,28 @@ const Login = async(req,res)=>{
     }
 }
 
+const Logout = async(req,res)=>{
 
-module.exports = {Register , Login};
+    try {
+        if(!req.session.user){
+            return res.status(400).json({"message":"No user logged in"});
+        }
+
+        req.session.destroy((err)=>{
+            if(err){
+                console.log(err)
+                return res.status(500).json({"message":"failed to Logout"});
+            }
+
+            res.clearCookie();
+            return res.status(200).json({"message":"Logout Successful"});
+
+        });
+
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+module.exports = {Register , Login , Logout};
