@@ -42,6 +42,7 @@ function WeatherCard({ district, newDistrict }: addressProps) {
                 const access_key = import.meta.env.VITE_WEATHER_ACCESS_KEY
                 const response = await axios.get(`https://api.weatherstack.com/current?access_key=${access_key}&query=${newDistrict ? newDistrict : district}`);
                 console.log(response, 'res');
+                
                 setWeather(response.data.current.temperature);
                 setFeelsLike(response.data.current.feelslike);
                 setIsDay(response.data.current.is_day == 'no' ? false : true);
@@ -50,6 +51,10 @@ function WeatherCard({ district, newDistrict }: addressProps) {
                 setVisibility(response.data.current.visibility)
                 setHumidity(response.data.current.humidity)
 
+                if(response.data.success === false){
+                    alert("LOCATION NOT FOUND OR INTERNAL ERROR");
+                }
+               
             } catch (error) {
                 console.log(error);
             }
@@ -98,7 +103,7 @@ function WeatherCard({ district, newDistrict }: addressProps) {
                 <div className="flex flex-col justify-center w-full px-5">
                     <div className="flex items-center justify-between w-full py-3 border-b">
                         <h3>Wind</h3>
-                        <p>ESE {windSpeed} km/h</p>
+                        <p>{windSpeed} km/h</p>
                     </div>
                     <div className="flex items-center justify-between w-full py-3 border-b">
                         <h3>Visibility</h3>

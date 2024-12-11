@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 
@@ -7,6 +8,8 @@ interface FormProps {
     setSignUp?: Dispatch<SetStateAction<boolean>>;
 }
 
+
+
 export default function LoginForm({ setShowLogin, setSignUp, type }: FormProps) {
     const [showPass, setShowPass] = useState(false); // for password show/hide
     const [showCpass, setShowCpass] = useState(false);
@@ -14,7 +17,7 @@ export default function LoginForm({ setShowLogin, setSignUp, type }: FormProps) 
     const [password, setPassword] = useState<string>('');
     const [confirmPass, setConfirmPass] = useState<string>('');
     const [username, setUserName] = useState<string>('');
-    const [email, setEmail] = useState<string>();
+    const [email, setEmail] = useState<string>('');
 
     // Handle close based on the form type (Login/Signup)
     const handleClose = () => {
@@ -25,27 +28,40 @@ export default function LoginForm({ setShowLogin, setSignUp, type }: FormProps) 
         }
     };
 
-    const handleSubmit = async(e:FormEvent<HTMLFormElement>) => {
+    const queryClient  = useQueryClient()
+    const signInMutation = useMutation({
+        mutationFn:async(data:{email:string , password:string})=>{
+            const response = await axios.post('http://localhost:8080/auth/login',data,{
+                withCredentials:true
+            })
+            return response.data;
+        },
+        onSuccess:(user)=>{
+            queryClient.setQueryData(['user'],user);
+            setShowLogin && setShowLogin(false);
+        }
+    })
+
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!email) {
+            return;
+        }
         try {
             if (type === "Login") {
-
-                const loginData = {
-                    email,
-                    password
-                }
-                const res = await axios.post('http://localhost:8080/auth/login',loginData)
-                console.log(res);
+                // login mutation
+                signInMutation.mutate({email,password});
 
             } else {
 
                 const signUpData = {
                     email,
-                    name:username,
+                    name: username,
                     password,
-                    confirmPass:confirmPass
+                    confirmPass: confirmPass
                 }
-                const res = await axios.post('http://localhost:8080/auth/register',signUpData)
+                const res = await axios.post('http://localhost:8080/auth/register', signUpData)
 
                 console.log(res);
             }
@@ -133,7 +149,7 @@ export default function LoginForm({ setShowLogin, setSignUp, type }: FormProps) 
 
                 {/* Submit Button */}
                 <button
-                    
+
                     type="submit"
                     className="px-10 py-2 w-full bg-black text-white hover:bg-gray-800 transition-colors"
                 >
