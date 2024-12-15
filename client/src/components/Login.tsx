@@ -6,11 +6,12 @@ interface FormProps {
     type?: string;
     setShowLogin?: Dispatch<SetStateAction<boolean>>;
     setSignUp?: Dispatch<SetStateAction<boolean>>;
+   
 }
 
 
 
-export default function LoginForm({ setShowLogin, setSignUp, type }: FormProps) {
+export default function LoginForm({ setShowLogin, setSignUp , type }: FormProps) {
     const [showPass, setShowPass] = useState(false); // for password show/hide
     const [showCpass, setShowCpass] = useState(false);
 
@@ -63,9 +64,13 @@ export default function LoginForm({ setShowLogin, setSignUp, type }: FormProps) 
                 }
                 const res = await axios.post('http://localhost:8080/auth/register', signUpData)
 
-                console.log(res);
+                alert(res.data.message);
+                
+                setSignUp && setSignUp(false);
+
             }
-        } catch (error) {
+        } catch (error:any) {
+            alert("internal server error");
             console.log(error);
         }
     }

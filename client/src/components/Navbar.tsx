@@ -1,108 +1,174 @@
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Dispatch, SetStateAction, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface AddressProps {
-    state: string,
-    district: string,
-    newDistrict?: string,
-    setNewDistrict: Dispatch<SetStateAction<string>>;
-    setShowLogin: Dispatch<SetStateAction<boolean>>;
-    setSignUp: Dispatch<SetStateAction<boolean>>;
+  state: string;
+  district: string;
+  newDistrict?: string;
+  setNewDistrict: Dispatch<SetStateAction<string>>;
+  setShowLogin: Dispatch<SetStateAction<boolean>>;
+  setSignUp: Dispatch<SetStateAction<boolean>>;
 }
 
 interface UserData {
-    id: string;
-    name: string;
-    email: string;
-    // Add any other fields you expect
+  id: string;
+  name: string;
+  email: string;
 }
 
 interface ResponseData {
-    user: UserData;
-    message: string;
+  user: UserData;
+  message: string;
 }
-function Navbar({ state, district, setNewDistrict, newDistrict, setShowLogin, setSignUp }: AddressProps) {
+function Navbar({
+  state,
+  district,
+  setNewDistrict,
+  newDistrict,
+  setShowLogin,
+  setSignUp,
+}: AddressProps) {
+  const [updatedDistrict, setUpdateDistrict] = useState<string>("");
 
-    const [updatedDistrict, setUpdateDistrict] = useState<string>("");
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUpdateDistrict(e.target.value); // Update the input field value
+  };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setUpdateDistrict(e.target.value); // Update the input field value
-    };
+  const queryClient = useQueryClient();
 
+  const userResponse = queryClient.getQueryData<ResponseData>(["user"]);
 
-    const queryClient = useQueryClient()
+  if (userResponse && userResponse.user) {
+    console.log("User data:", userResponse.user);
+    console.log("Message:", userResponse.message);
+  }
 
-    const userResponse = queryClient.getQueryData<ResponseData>(['user']);
-
-    if (userResponse && userResponse.user) {
-        console.log('User data:', userResponse.user);
-        console.log('Message:', userResponse.message);
-    }
-
-    const handleSearch = () => {
-
-        if (updatedDistrict) {
-            alert(`Searching for weather in: ${updatedDistrict}`);
-            setNewDistrict(updatedDistrict);
-        } else {
-            alert("Please enter a location to search.");
-        }
-    };
-
-    const logout = async() => {
-
+  const handleSearch = async () => {
+    if (updatedDistrict) {
+      alert(`Searching for weather in: ${updatedDistrict}`);
+      setNewDistrict(updatedDistrict);
+      if (userResponse?.user) {
         try {
-
-            const res = await axios.post('http://localhost:8080/auth/logout',{},{
-                withCredentials:true
-            })
-
-            alert(res.data.message);
-            // Removing querykey 'user'
-            queryClient.removeQueries({ queryKey: 'user' });
-
-            window.location.reload();
-
-        } catch (error) {
-            console.log(error)
-        }
-
-
-    }
-    return (
-        <nav className="flex bg-slate-900  h-20 w-full items-center justify-center gap-32">
-            <div className="flex items-center justify-center gap-3">
-                <h1 className="text-2xl text-yellow-100 font-semibold">W E A T H E R A P P</h1>
-                <p className="text-sm text-white">{!newDistrict ? `${district},${state}` : newDistrict}</p>
-            </div>
-            <div className="flex gap-3">
-                <input onChange={handleInputChange} type="text" placeholder="enter location" className="px-5 py-1 text-black rounded outline-none" />
-                <button onClick={handleSearch} className="rounded flex items-center justify-center px-2 py-1 bg-white">search</button>
-            </div>
+          const res = await axios.post(
+            `http://localhost:8080/users/recent-search`,
+            { query: updatedDistrict },
             {
-                userResponse ? (
-                    <div className="flex items-center justify-center px-3 py-1 gap-2">
-                        <p className="text-center text-white">
-                            Hello {userResponse.user.name.toUpperCase()}
-                        </p>
-                        <button onClick={logout} className="text-white border px-2 py-1 rounded">Logout</button>
-                    </div>
-                ) : (
-                    <div className="flex text-white gap-2">
-                        <button onClick={() => {
-                            setSignUp(false);
-                            setShowLogin(prev => !prev)
-                        }} className="bg-white font-semibold cursor-pointer text-slate-900 rounded px-2 py-1">Login</button>
-                        <button onClick={() => {
-                            setShowLogin(false);
-                            setSignUp(prev => !prev)
-                        }} className="underline underline-offset-2 font-thin cursor-pointer">Signup</button>
-                    </div>
-                )
+              withCredentials: true,
             }
-        </nav>
-    );
+          );
+
+          console.log(res);
+        } catch (error) {
+          console.log(error);
+          alert("Internal server error");
+        }
+      }
+    } else {
+      alert("Please enter a location to search.");
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/auth/logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+
+      alert(res.data.message);
+      // Removing querykey 'user'
+      queryClient.removeQueries({ queryKey: "user" });
+
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <nav className="flex bg-slate-900  h-20 w-full items-center justify-center gap-32">
+      <div className="flex items-center justify-center gap-3">
+        <h1 className="text-2xl text-yellow-100 font-semibold">
+          W E A T H E R A P P
+        </h1>
+        <p className="text-sm text-white">
+          {!newDistrict ? `${district},${state}` : newDistrict}
+        </p>
+      </div>
+      <div className="flex gap-3 h-full items-center justify-center">
+        <div className="flex flex-col relative h-full items-center justify-center">
+          <input
+            onChange={handleInputChange}
+            type="text"
+            placeholder="enter location"
+            className="w-[250px] px-5 py-1 text-black rounded outline-none"
+          />
+          {/* <div
+                        ref={inputRef}
+                        style={{ display: "none" }}
+                        className="flex-col absolute top-2/3 mt-1 w-[250px] bg-gray-100 rounded px-5 py-1 gap-2"
+                    >
+                        <p className="border-b border-b-black w-full">City 1</p>
+                        <p className="border-b border-b-black w-full">City 2</p>
+                    </div> */}
+        </div>
+        <button
+          onClick={handleSearch}
+          className="rounded flex items-center justify-center px-2 py-1 bg-white"
+        >
+          search
+        </button>
+      </div>
+
+      {userResponse ? (
+        <div className="flex items-center justify-center px-3 py-1 gap-2">
+          <p className="text-center text-white">
+            Hello {userResponse?.user?.name.toUpperCase()}
+          </p>
+          <button
+            onClick={logout}
+            className="text-white border px-2 py-1 rounded"
+          >
+            Logout
+          </button>
+          <div
+            onClick={() => navigate("/profile")}
+            className="cursor-pointer ml-2 w-[30px] h-[30px] bg-red-600 rounded-full flex items-center justify-center"
+          >
+            I
+          </div>
+        </div>
+      ) : (
+        <div className="flex text-white gap-2">
+          <button
+            onClick={() => {
+              setSignUp(false);
+              setShowLogin((prev) => !prev);
+            }}
+            className="bg-white font-semibold cursor-pointer text-slate-900 rounded px-2 py-1"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => {
+              setShowLogin(false);
+              setSignUp((prev) => !prev);
+            }}
+            className="underline underline-offset-2 font-thin cursor-pointer"
+          >
+            Signup
+          </button>
+        </div>
+      )}
+    </nav>
+  );
 }
 
 export default Navbar;

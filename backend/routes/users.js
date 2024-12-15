@@ -1,8 +1,9 @@
-const {getUsers} = require('../controller/users') ;
-const { verifyJWT } = require('../middleware/verifyJWT');
-const router = require('express').Router();
+const { getUsers, getRecentSearch, addSearch } = require("../controller/users");
+const { verifyJWT } = require("../middleware/verifyJWT");
+const router = require("express").Router();
 
+router.get("/", verifyJWT, getUsers);
+router.get("/recent-search", verifyJWT, getRecentSearch);
+router.post("/recent-search", verifyJWT, addSearch);
 
-router.get('/',verifyJWT,getUsers);
-
-module.exports = router; 
+module.exports = router;
