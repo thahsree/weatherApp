@@ -48,14 +48,14 @@ This is a full-stack weather application built with modern technologies to displ
 
 ## Backend Setup
 
-1. clone the repopsitory
+1. clone the repopsitory:
 
 ```bash
 git clone https://github.com/yourusername/weather-app.git
 cd weather-app
 ```
 
-2. install backend dependencies
+2. install backend dependencies:
 
 ```bash
 cd backend
@@ -76,7 +76,7 @@ ACCESS_TOKEN_SECRET = your accesstoken secret
 SESSION_SECRET = your session secret
 ```
 
-4. Start the backend server
+4. Start the backend server:
 
 ```bash
 npm start
@@ -84,7 +84,7 @@ npm start
 
 ## Frontend Setup
 
-1. Install Frontend Dependencies
+1. Install Frontend Dependencies:
 
 ```bash
 cd frontend
@@ -92,14 +92,14 @@ npm install
 ```
 
 2. Set up environment variables:
-   -Create a .env file in the frontend directory.
-   -Add the following environment variables
+   - Create a .env file in the frontend directory.
+   - Add the following environment variables
 
 ```bash
 VITE_WEATHER_ACCESS_KEY = f6b83e53f4e511f89988b94023b13304
 ```
 
-3.Start the frontend application
+3.Start the frontend application:
 
 ```bash
 npm run dev
