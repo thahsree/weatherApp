@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-export const useSearchList = () => {
-  return useQuery({
+const useLogin = ()=>{
+
+  return ({
     queryKey: ["searchList"],
     queryFn: async () => {
       const response = await axios.get(
@@ -15,3 +16,4 @@ export const useSearchList = () => {
     },
   });
 };
+

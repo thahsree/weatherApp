@@ -79,4 +79,21 @@ const addSearch = (req, res) => {
   }
 };
 
-module.exports = { getUsers, getRecentSearch, addSearch };
+const allSearches = (req, res) => {
+  try {
+    db.query("SELECT * FROM recent_search", (error, result) => {
+      if (result == undefined || null) {
+        return res.status(200).json({ message: "no data found" });
+      }
+      if (error) {
+        console.log(error);
+        return res.status(500).json({ message: "internal server error" });
+      }
+      return res.status(200).json({ result });
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+module.exports = { getUsers, getRecentSearch, addSearch, allSearches };

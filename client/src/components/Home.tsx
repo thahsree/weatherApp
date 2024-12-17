@@ -1,55 +1,29 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Login from "./Login";
 import Navbar from "./Navbar";
 import WeatherCard from "./WeatherCard";
 
+import { useAllSearches } from "../hooks/useAllSearches";
+import { EachQuery } from "./EachQuery";
+
 function Home() {
-  const [address, setAddress] = useState<any>({});
-  const [district, setDistrict] = useState<string>("");
-  const [newDistrict, setNewDistrict] = useState<string>("");
   const [showLogin, setShowLogin] = useState<boolean>(false);
   const [showSignUp, setSignUp] = useState<boolean>(false);
 
-  const fetchLocation = () => {
-    // Fetch the geolocation data on component mount
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const { latitude, longitude } = pos.coords;
-      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+  const { data: searchData } = useAllSearches();
 
-      fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-          setAddress(data.address);
-          setDistrict(data.address.state_district || data.address.county || "");
-        })
-        .catch((error) => console.error("Geolocation fetch error: ", error));
-    });
-  };
-
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    fetchLocation();
-  }, []);
-  const state = address?.state || "";
   return (
     <>
-      <Navbar
-        state={state}
-        district={district}
-        setNewDistrict={setNewDistrict}
-        newDistrict={newDistrict}
-        setShowLogin={setShowLogin}
-        setSignUp={setSignUp}
-      />
+      <Navbar setShowLogin={setShowLogin} setSignUp={setSignUp} />
       <main
-        className={`px-20 bg-gray-100 h-[100vh] py-4 flex flex-col items-center gap-10 transition-all duration-300 ${
-          showLogin ? "blur-[1px]" : ""
+        className={`px-20 bg-gray-100 h-max py-4 flex flex-col items-center gap-10 transition-all duration-300 ${
+          showLogin || showSignUp ? "blur-[1px]" : ""
         }`}
       >
-        <WeatherCard district={district} newDistrict={newDistrict} />
+        <WeatherCard />
         {/* <HourlyCard location={district}/> */}
+
+        {searchData ? <EachQuery /> : ""}
       </main>
 
       {showLogin && (

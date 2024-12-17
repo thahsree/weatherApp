@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useSearchList } from "../hooks/useSearchList";
+import { useWeatherSearch } from "../hooks/useWeatherSearch";
 
 function Profie() {
   const { data, error, isLoading, isError, isSuccess } = useSearchList();
+  const { data: weatherData } = useWeatherSearch();
+
   const navigate = useNavigate();
   if (isLoading) {
     return (
@@ -11,12 +14,12 @@ function Profie() {
       </div>
     );
   }
-  console.log(data);
+  console.log(weatherData, "WEATHER DATA");
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[100vh] gap-2 relative">
+    <div className="flex flex-col items-center justify-center w-full min-h-[100vh] gap-2 relative mt-10">
       <div
         onClick={() => navigate("/")}
-        className="absolute bg-red-700 text-white font-bold flex items-center justify-center text-center w-[50px] h-[50px] top-10 left-10 text-[30px] rounded-full"
+        className="fixed bg-red-700 text-white font-bold flex items-center justify-center text-center w-[50px] h-[50px] top-10 left-10 text-[30px] rounded-full"
       >
         ←
       </div>

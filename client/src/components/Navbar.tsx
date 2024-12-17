@@ -2,34 +2,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useFetchLocation } from "../hooks/useFetchLocation";
 
 interface AddressProps {
-  state: string;
-  district: string;
-  newDistrict?: string;
-  setNewDistrict: Dispatch<SetStateAction<string>>;
   setShowLogin: Dispatch<SetStateAction<boolean>>;
   setSignUp: Dispatch<SetStateAction<boolean>>;
 }
 
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-}
 
-interface ResponseData {
-  user: UserData;
-  message: string;
-}
-function Navbar({
-  state,
-  district,
-  setNewDistrict,
-  newDistrict,
-  setShowLogin,
-  setSignUp,
-}: AddressProps) {
+function Navbar({ setShowLogin, setSignUp }: AddressProps) {
   const [updatedDistrict, setUpdateDistrict] = useState<string>("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,33 +19,15 @@ function Navbar({
 
   const queryClient = useQueryClient();
 
-  const userResponse = queryClient.getQueryData<ResponseData>(["user"]);
+  const storedUser = localStorage.getItem("user");
+  const user: any = storedUser ? JSON.parse(storedUser) : null;
 
-  if (userResponse && userResponse.user) {
-    console.log("User data:", userResponse.user);
-    console.log("Message:", userResponse.message);
-  }
+  const { data: location } = useFetchLocation();
 
   const handleSearch = async () => {
     if (updatedDistrict) {
       alert(`Searching for weather in: ${updatedDistrict}`);
-      setNewDistrict(updatedDistrict);
-      if (userResponse?.user) {
-        try {
-          const res = await axios.post(
-            `http://localhost:8080/users/recent-search`,
-            { query: updatedDistrict },
-            {
-              withCredentials: true,
-            }
-          );
-
-          console.log(res);
-        } catch (error) {
-          console.log(error);
-          alert("Internal server error");
-        }
-      }
+      queryClient.setQueryData(["location"], updatedDistrict);
     } else {
       alert("Please enter a location to search.");
     }
@@ -74,6 +37,7 @@ function Navbar({
 
   const logout = async () => {
     try {
+      localStorage.removeItem("user");
       const res = await axios.post(
         "http://localhost:8080/auth/logout",
         {},
@@ -83,9 +47,6 @@ function Navbar({
       );
 
       alert(res.data.message);
-      // Removing querykey 'user'
-      queryClient.removeQueries({ queryKey: "user" });
-
       window.location.reload();
     } catch (error) {
       console.log(error);
@@ -98,9 +59,7 @@ function Navbar({
         <h1 className="text-2xl text-yellow-100 font-semibold">
           W E A T H E R A P P
         </h1>
-        <p className="text-sm text-white">
-          {!newDistrict ? `${district},${state}` : newDistrict}
-        </p>
+        <p className="text-sm text-white">{location ? location : "..."}</p>
       </div>
       <div className="flex gap-3 h-full items-center justify-center">
         <div className="flex flex-col relative h-full items-center justify-center">
@@ -110,14 +69,6 @@ function Navbar({
             placeholder="enter location"
             className="w-[250px] px-5 py-1 text-black rounded outline-none"
           />
-          {/* <div
-                        ref={inputRef}
-                        style={{ display: "none" }}
-                        className="flex-col absolute top-2/3 mt-1 w-[250px] bg-gray-100 rounded px-5 py-1 gap-2"
-                    >
-                        <p className="border-b border-b-black w-full">City 1</p>
-                        <p className="border-b border-b-black w-full">City 2</p>
-                    </div> */}
         </div>
         <button
           onClick={handleSearch}
@@ -127,10 +78,10 @@ function Navbar({
         </button>
       </div>
 
-      {userResponse ? (
+      {user ? (
         <div className="flex items-center justify-center px-3 py-1 gap-2">
           <p className="text-center text-white">
-            Hello {userResponse?.user?.name.toUpperCase()}
+            Hello {user?.user.name.toUpperCase()}
           </p>
           <button
             onClick={logout}
@@ -140,9 +91,9 @@ function Navbar({
           </button>
           <div
             onClick={() => navigate("/profile")}
-            className="cursor-pointer ml-2 w-[30px] h-[30px] bg-red-600 rounded-full flex items-center justify-center"
+            className="cursor-pointer ml-2 w-[30px] h-[30px] bg-red-600 rounded-full flex items-center justify-center capitalize font-semibold"
           >
-            I
+            {user?.user.name.charAt(0)}
           </div>
         </div>
       ) : (
