@@ -52,7 +52,7 @@ This is a full-stack weather application built with modern technologies to displ
 
 ```bash
 git clone https://github.com/thahsree/weatherApp
-cd weather-app
+
 ```
 
 2. install backend dependencies:
@@ -87,7 +87,7 @@ npm start
 1. Install Frontend Dependencies:
 
 ```bash
-cd frontend
+cd client
 npm install
 ```
 
@@ -96,7 +96,7 @@ npm install
    - Add the following environment variables
 
 ```bash
-VITE_WEATHER_ACCESS_KEY = f6b83e53f4e511f89988b94023b13304
+VITE_WEATHER_ACCESS_KEY = your key
 ```
 
 3.Start the frontend application:
