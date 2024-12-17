@@ -51,7 +51,7 @@ This is a full-stack weather application built with modern technologies to displ
 1. clone the repopsitory:
 
 ```bash
-git clone https://github.com/yourusername/weather-app.git
+git clone https://github.com/thahsree/weatherApp
 cd weather-app
 ```
 
