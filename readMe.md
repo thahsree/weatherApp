@@ -63,8 +63,8 @@ npm install
 ```
 
 3. Set up environment variables:
-   -Create a .env file in the backend directory.
-   -Add the following environment variables
+   - Create a .env file in the backend directory.
+   - Add the following environment variables
 
 ```bash
 PORT = 8080
